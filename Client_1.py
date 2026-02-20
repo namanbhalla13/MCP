@@ -18,8 +18,13 @@ SERVERS = {
         "transport": "stdio",
         "command": sys.executable,
         "args": [r"D:\Expense_Trcaker_MCP_Server\main.py"],
+    },
+    "Expense Server":{
+        "transport":"streamable_http",
+        "url":"https://splendid-gold-dingo.fastmcp.app/mcp"
     }
 }
+
 
 async def run_agent(prompt):
     # Connect to MCP
