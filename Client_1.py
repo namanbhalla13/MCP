@@ -21,7 +21,7 @@ SERVERS = {
     }
 }
 
-async def main():
+async def run_agent(prompt):
     # Connect to MCP
     client = MultiServerMCPClient(SERVERS)
     tools = await client.get_tools()
@@ -38,13 +38,15 @@ async def main():
         model="llama-3.1-8b-instant",
         temperature=0
     )
+    llm_withot_tools= llm
     llm_with_tools= llm.bind_tools(tools)
-    prompt=" What is the multipcation of 2 and 8 calculator tools"
+    prompt= prompt#" What is the multipcation of 2 and 8 calculator tools"
     reponse= await llm_with_tools.ainvoke(prompt)
     print("response ,",reponse.content)
     selected_tool_name, selected_tool_arg= hp.extract_tool_call(reponse.content)
     print(selected_tool_name, selected_tool_arg)
     if selected_tool_name:
+        print("inside tool calling loops")
         result= await named_tools[selected_tool_name].ainvoke(selected_tool_arg)
         tools_result= str(result[0]['text'])
 
@@ -52,9 +54,11 @@ async def main():
 
         final_reponse= await llm_with_tools.ainvoke([prompt, reponse, tool_messages])
         print("final response ,", final_reponse.content)
+        return final_reponse.content
     else:
-        final_reponse= await llm_with_tools.ainvoke([prompt])
+        final_reponse= await llm_withot_tools.ainvoke(prompt)
         print("final response ,", final_reponse.content)
+        return final_reponse.content
 
 if __name__ == "__main__":
     asyncio.run(main())
